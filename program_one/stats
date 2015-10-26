@@ -1,0 +1,266 @@
+#!/bin/bash 
+
+##      Kayla Fitzsimmons
+##      Operating Systems 1
+##      Fall 2015
+##      Program One
+
+##      Given a set of numbers from a file, or stdin, this program calculates the 
+##      average and median of either each row, or each column
+##      Usage: stats {-rows|-cols} [file]
+
+set -u # treat unset variables as an error, exit immediately 
+set -e # exit script if any statement returns a non true value
+set -euo pipefail # causes a pipeline to produce a failure return code if any command errors (instead of just if the last command errors)
+
+declare -a BIG_ARRAY   ## stores the contents of the input stream/file, one row per index ##
+declare -a AVE_ARRAY    ## stores the averages as they are calculated ##
+declare -a MED_ARRAY    ## stores the medians as they are calculated ##
+
+##########################################
+##                          print_col_stats                                 ##
+##  parameters:  none                                                   ##
+##  behavior:  prints the formatted array of                  ##
+##  averages and medians to standard output             ##
+##########################################
+function print_col_stats(){
+
+    printf "Averages:\n"
+    for ave in "${AVE_ARRAY[@]}";do
+        printf "%s\t" "$ave"
+    done
+    printf "\nMedians:\n"
+    for med in "${MED_ARRAY[@]}";do
+        printf "%s\t" "$med"
+    done  
+    printf "\n"
+
+}
+##########################################
+##                          print_row_stats                                ##
+##  parameters:  none                                                   ##
+##  behavior:  prints the formatted array of                 ##
+##  averages and medians to standard output            ##
+##########################################
+function print_row_stats(){
+
+    declare -a ave_array
+    declare -a med_array
+    printf "Average Median\n"
+    for (( idx=0 ; idx < "${#AVE_ARRAY[*]}" ; idx++ ));do 
+        printf "%s\t%s\n" "${AVE_ARRAY[$idx]}" "${MED_ARRAY[$idx]}"
+    done
+    
+
+}
+##########################################
+##                                      median                                  ##
+##  parameters:  an array of numbers                          ##
+##  behavior:  returns the median of the input array    ##
+##########################################
+function median() {
+## I read that a function has access to a local array declared in
+## the scope of the calling function, but I decided to pass 
+## most of the arrays to these functions (except the print functions) 
+## to make the code more reusable
+
+## I found a couple of ways to pass arrays as arguements
+## to functions, but the method of indirect parameter expansion
+## seemed to be the syntactically simplest way to do it. Please
+## let me know if there is a prefered method of passing/accessing
+## arrays as arguements :)
+
+    declare -a line=( "${!1}" )
+    local length="${#line[@]}"  ## storing the number of nums
+    #  'Here Strings' <<< used in the following lines to 
+    # sort the array would not work with the default ifs
+   oIFS=$IFS    
+    IFS=$'\n'       
+    local sorted=($(sort <<< "${line[*]}"))    ## sorting and storing
+    local middle
+    (( middle=length/2 ))
+    [[ "expr $length % 2" == 0 ]] && (( middle+=1 )) ## checking for even or odd
+    echo "${sorted[$middle]}"   ## 'returning' median value
+    ## unsetting local variables to be safe
+    unset sorted
+    unset sum
+    unset line
+    unset middle
+   IFS=$oIFS
+}
+##########################################
+##                                      average                                 ##
+##  parameters:  an array of numbers                          ##
+##  behavior:  returns the average of the input array  ##
+##########################################
+function average() {
+
+    declare -a line=( "${!1}" )
+    local length="${#line[@]}"
+    ## makes sure line isn't blank
+    if [ "$length" -gt 0 ]; then
+        local sum=0
+        local ave=0
+        for num in "${line[@]}"; do
+            (( sum+=num ))
+        done
+        # rounding up by adding denominator-1 to numerator
+        (( ave=sum+length-1 ))
+        (( ave=ave/length ))
+       echo "$ave"
+    fi
+    unset ave
+    unset length
+    unset sum
+    unset line
+}
+##########################################
+##                                      row_stats                              ##
+##  parameters:  an array of numbers                          ##
+##  behavior:  returns the average of the input array  ##
+##########################################
+function row_stats() {
+    ## takes global BIG_ARRAY as parameter
+    
+    declare -a rows=("${!1}") 
+    for row in "${rows[@]}"; do
+        read -a row_array <<< "$row"
+         local length="${#row_array[@]}"
+          
+        if [ "$length" -gt 0 ]; then
+            ## update global array of averages
+            local ave=$(average row_array[@])
+            AVE_ARRAY+=("$ave")
+            ## update global array of medians
+             local med=$(median row_array[@])
+            MED_ARRAY+=("$med")
+         fi
+         unset ave med
+    unset row_array
+    unset rows
+   done
+   
+ 
+}
+##########################################
+##                                  column_stats                           ##
+##  parameters:  an array of numbers                         ##
+##  behavior:  returns the average of the input array  ##
+##########################################
+function column_stats(){
+ ## takes global BIG_ARRAY as parameter
+
+    declare -a rows=("${!1}")
+    declare -a column
+    declare -a row_array
+    
+    ## storing the number of columns
+    ## to know how many times to iterate
+    ## over each string (which is a row)
+    read -a row_array <<< "${rows[0]}"
+    local length="${#row_array[@]}" 
+    
+    ## for each column
+    for (( idx=0 ; idx<length ; idx++ )); do 
+        ## grab the number at that index from its row
+       for row in "${rows[@]}"; do
+              ## splitting the row string
+            read -a row_array <<< "$row"
+            ## if the row isn't empty than the value at that 
+            ## index is added to the column array
+            [[ "${#row_array[@]}" -gt 0 ]] && column+=( "${row_array[$idx]}" )         
+      done
+      
+      ## calling average
+      ## store value to average array
+      local ave=$(average column[@]);
+      AVE_ARRAY+=("$ave")
+      ## calling median
+      ## store value to average array
+      local med=$(median column[@])
+      MED_ARRAY+=("$med")
+      unset column
+      unset row_array
+   done
+}
+
+
+
+## if the program is fed too few or too many arguements
+## halt and return 1
+if [ "$#" -eq 0 ];then
+     echo "Usage: stats {-rows|-cols} [file]"  >&2
+     exit 1
+fi
+    if [ "$#" -ge 3 ]; then
+         echo "Usage: stats {-rows|-cols} [file]"  >&2
+     exit 1
+    fi
+
+## I decided to parse out the user's command this way becuase
+##  I could use their input as the key for the switch statement
+##  below. This if statement checks for the pattern that matches
+## -r or -c and if it  is found, it cuts off the rest of the command 
+## and just -r or -c is saved to key. If it is not found, then key is set
+## to 3 which is the case name for the error output & exit
+if [ ! -z "$(echo $1 | egrep '^-[r,c].*')" ]; then
+    key="$(echo $1 | egrep '^-[r,c].*'| cut -c1-2)"
+else
+    key=3
+fi
+## if there is a third parameter (third in the sense that 1=program name, 
+## 2= command (-r,-c), 3= optional file name), it is a file, it is readable and it exits
+## the input is read from the file and stored in BIG_ARRAY
+## if there is no third parameter, then input is read from standard input
+if [ "$#" -eq 2 ]; then    
+   if [ ! -f "$2" ]; then
+        echo "stats: cannot read $2" >&2
+        exit 1
+    elif [ ! -r "$2" ]; then
+        echo "stats: cannot read $2" >&2
+        exit 1
+    elif [ ! -e "$2" ]; then 
+    echo "stats: cannot read $2" >&2
+        exit 1
+    else
+    ## read from file
+    FILE="$2"
+        while read line; do 
+            BIG_ARRAY+=("$line")		
+        done<$FILE
+     fi
+else
+## read from stdin
+    while read line; do 
+        BIG_ARRAY+=("$line")		
+    done 
+fi
+
+## case statement calls main stats functions and calls print functions
+case $key in
+     '-r') # rows
+     ## make sure input was provided
+     if [[ "${#BIG_ARRAY[@]}" -gt 0 ]]; then
+        row_stats BIG_ARRAY[@]
+        print_row_stats AVE_ARRAY[@] MED_ARRAY[@]
+      fi
+      shift
+	 ;;
+     '-c') # columns
+      ## takes global BIG_ARRAY as parameter
+          if [[ "${#BIG_ARRAY[@]}" -gt 0 ]]; then
+            column_stats BIG_ARRAY[@]
+            print_col_stats AVE_ARRAY[@] MED_ARRAY[@]
+    fi
+	 shift
+	 ;;
+     3) # error message
+     echo "Usage: stats {-rows|-cols} [file]"  >&2
+     exit 1
+     shifts
+ esac	
+exit 0
+
+	
+
+

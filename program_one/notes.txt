@@ -1,0 +1,76 @@
+
+## Bracket Expansion
+Patterns to be brace expanded take the form of an optional preamble, 
+followed by either a series of comma-separated strings or a sequence 
+expression between a pair of braces, followed by an optional postscript. 
+The preamble is prefixed to each string contained within the braces, 
+and the postscript is then appended to each resulting string, expanding left to right.
+
+Brace expansions may be nested. The results of each expanded string are not sorted; 
+left to right order is preserved. For example,
+
+bash$ echo a{d,c,b}e
+ade ace abe
+
+
+## Filename Expansion
+
+
+## Double-Parentheses Construct
+Similar to the let command, the (( ... )) construct permits arithmetic expansion and evaluation.
+In its simplest form, a=$(( 5 + 3 )) would set a to 5 + 3, or 8. However, this double-parentheses
+construct is also a mechanism for allowing C-style manipulation of variables
+in Bash, for example, (( var++ )).
+
+## Array notation
+ ( )
+
+## Deleting Array Variables
+ unset ARRAY
+ 
+ ## Local Variables and return values
+ function myfunc()
+{
+    local  myresult='some value'
+    echo "$myresult"
+}
+
+result=$(myfunc)   # or result=`myfunc`
+echo $result
+
+
+# Accessing parameter as pointer
+("${!1}")
+
+
+## Unset
+-f treats each NAME as a function name
+-v treats each NAME as a variable name
+-n treats each NAME as a name reference and unsets the variable itself rather than the 
+variable it references
+
+## expression evaluation
+ave=$(( sum+length-1/length ))
+
+## $' special form of quoting
+Words of the form $'string' are treated specially. 
+The word expands to string, with backslash-escaped characters 
+replaced as specified by the ANSI C standard.
+
+## $" localization
+A double-quoted string preceded by a dollar sign (‘$’) will cause the string to be translated according 
+to the current locale. If the current locale is C or POSIX, the dollar sign is ignored. If the string is translated 
+and replaced, the replacement is double-quoted.
+
+while [ "$num" -ge 0 ] # POSIX
+while (( num >= 0 )); # bash
+
+
+## bugs ##
+
+1) stats: line 36: local: `5': not a valid identifier
+# Initial State: This happened when I set 
+local length= "${#line[@]}"
+trying to store the length of the array in the var length
+# Fix:              local length="${#row_array[@]}"
+# Reason:  Missing the f'n space between = and quote. POSIX suck it

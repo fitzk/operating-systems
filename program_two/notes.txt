@@ -1,0 +1,19 @@
+Accessing a File in Unix
+
+Open the file
+
+file_descriptor use open
+
+man -k split
+split (n) string into tcl list
+q
+
+
+man read
+man -S 2 read
+
+int file_descriptor
+ssize_t nread;
+ssize_t nwritten;
+char buffer[512];
+file_descriptor - open("test.txt")

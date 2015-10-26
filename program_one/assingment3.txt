@@ -1,0 +1,16 @@
+25% of total assignment grade.
+
+I will try to post an example video of a unit test and/or few example tests from previous term students to help you. 
+
+Note:
+
+This is NOT part of the team project. Do it on your own!
+You are NOT required to write random tests in this assignment.
+Submit your code in class repository under your onid folder. 
+(20 points) Write unit tests for four functions (not card implementations or cardEffect) in dominion.c. Check these tests in as unittest1.c,unittest2.c, unittest3.c, and unittest4.c. (for example, you can create a test for updateCoins() method)
+(20 points) Write unit tests for four Dominion cards implemented in dominion.c.  These tests should be checked in as cardtest1.c, cardtest2.c,cardtest3.c, and cardtest4.c. (For example, create a test for smithy card.). It is mandatory to test smithy and adventurer card. 
+(10 points) Execute your unit tests and describe any bugs you find in a file named bug1.c. 
+(40 points) Use gcov to measure code coverage for all of these tests. Report your findings by discussing your tests' coverages (statement, branch, boundary, etc.), and describe their implications for the tests in a file called coverage1.c, also checked in to your dominion directory. I want you to look at the dominion code coverage and find out what parts of your code are not covered so that in future you can improve your test suite. 
+(10 points) Add a rule in Makefile that will generate and execute all of these tests, and append complete testing results (including % coverage) into a file called unittestresults.out. The rule should be named unittestresults.out and should depend on all your test code as well as the dominion code.
+Update your refactor.c  file of Assignment 2 with some information about the bugs that you introduced in Assignment 2 in case you have not done it already and resubmit the file.
+Note: we prefer to run a single command "make unittestresults.out". This command should do everything. Compile all 8 tests, execute them, add any output information to unittestresult.out file,  collect coverage information and append it to the unittestresult.out file.
