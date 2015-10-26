@@ -6,12 +6,16 @@ This assignment asks you to write a simple game akin to old text adventure games
 
 http://en.wikipedia.org/wiki/Colossal_Cave_Adventure (Links to an external site.)
 
-This program will introduce you to programming in C on UNIX based systems, and will get you familiar with reading and writing files.
+This program will introduce you to programming in C on UNIX based systems, and 
+will get you familiar with reading and writing files.
 
-Overview
-Your program will first create a series of files that hold descriptions of the rooms and how rooms are connected, and then it will offer to the player an interface for playing the game using those generated rooms.
+--Overview--
+Your program will first create a series of files that hold descriptions of the rooms and 
+how rooms are connected, and then it will offer to the player an interface for playing 
+the game using those generated rooms.
 
-The player will begin in the “starting room” and will win the game automatically upon entering the “ending room”.
+The player will begin in the “starting room” and will win the game automatically upon 
+entering the “ending room”.
 
 Finally, the program will exit and display the path taken by the player.
 
@@ -24,6 +28,7 @@ Finally, the program will exit and display the path taken by the player.
       brewsteb.rooms.19903
 
 2) Each room has a Room Name
+
 3) at least 3 connections, from this room to other rooms
     - at most 6 connections, where the number of connections is random
     - a room type

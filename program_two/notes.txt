@@ -1,19 +1,12 @@
-Accessing a File in Unix
+The C library function int strcmp(const char *str1, const char *str2) compares the string pointed 
+to, by str1 to the string pointed to by str2
+if Return value < 0 then it indicates str1 is less than str2.
 
-Open the file
+if Return value > 0 then it indicates str2 is less than str1.
 
-file_descriptor use open
-
-man -k split
-split (n) string into tcl list
-q
+if Return value = 0 then it indicates str1 is equal to str2.
 
 
-man read
-man -S 2 read
 
-int file_descriptor
-ssize_t nread;
-ssize_t nwritten;
-char buffer[512];
-file_descriptor - open("test.txt")
+
+char *strcat(char *dest, const char *src);

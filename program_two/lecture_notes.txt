@@ -1,0 +1,102 @@
+Lecture 7
+File Access in C
+
+1) unix, everything is files
+
+2) everything is streams of bites
+
+3) open function
+    - returns file descriptor
+    - call read or write
+
+4) Opening a File
+    - read only -O_RDONLY
+    - write only -O_WRONLY
+    - read and write - O_RDWR
+
+5) Example -2:32 minutes
+
+6) Man pages with the same name
+    - man read will bring up the Bash manual page
+    - man -S 2 read will bring up the read() system call page
+
+7) will say Linux at the bottom or to of system call pages (used in c)
+    - if it says bash it's for the shell itself
+
+8) split
+    - use "man-k" does a keyword search of all man
+    - man -S n split 
+    
+9) include files
+    #include <unistd.h>
+    #inlcude <stdio.h>
+    #include <stdlib.h>
+    #include <sys/types.h> // used to reference size types
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    
+10) lseek moves the file pointer in the file
+       lseek(file_descriptor,-1,SEEK_CUR);
+      move to byte #16
+        - newpos  =  lseek(file_descriptor,16,SEEK_SET);
+      move forward
+         - newpos  =  lseek(file_descriptor,16,SEEK_CUR);
+       end
+        - newpos  =  lseek(file_descriptor,-3,SEEK_END);
+        
+11) read
+        11:00
+        15.33- buffer & read/write moving file pointer
+            
+12) file pointer
+
+13) delete file if it's already there
+      O_TRUNC
+14) append
+      O_APPEND
+      
+15) create
+      O_CREATE
+      
+16) access permissions
+    - third parameter only applies when new file is created
+    - third parameter is an octal number
+       - bits specify permissions
+    - example:
+        - file_descriptor = open(file,O_WRONLY | O_CREAT, 0644);
+
+17) stdio
+        17:00
+        
+18) stat and fstat
+
+
+
+Lecture 8
+
+1) strings are not a native types
+2) termainated at null char
+3) string library functions (strcmp, strlen, strcpy, strcat)
+
+4) formatted printing
+    - printf()
+     - prints to standard out
+    - sprintf()
+        - prints to a string
+    - fprintf()
+ 5) declaring string
+    - char* mystring = "string"
+    - char mystring[10]
+    - char* mystring[10] (array of pointers to strings)
+    
+ 6) safe way use const char *????????
+ 
+ 7) strtok 
+      char input[18]="This.is my/string";
+        8:10
+    
+    
+    
+  
+ 
+        
