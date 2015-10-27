@@ -14,8 +14,30 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include "adventure.h"
+#include "dir_tests.h"
 
+
+/**
+*  list_directory
+*
+*  return: Return_Description
+*
+*  details: Details
+**/
+void list_directories(){
+  DIR           *d;
+  struct dirent *dir;
+  d = opendir(".");
+  if (d)
+  {
+    while ((dir = readdir(d)) != NULL)
+    {
+      printf("%s\n", dir->d_name);
+    }
+
+    closedir(d);
+  }
+}
 
 /**
 *  directory_test2
@@ -72,29 +94,4 @@ int directory_test1(const char* dir_name,const char* output_file){
         fclose(fp);
         return 0;
     
-}
-/**
-* brief main
-*
-* return 0
-*
-* details Details
-**/
-int main(void){
-    
-/*     int file_descriptor;
-    ssize_t nread;
-    ssize_t; */
-    
-   //const char* dir_name;
-   const char* output_file="results.txt";
-
-    
-    ///dir_name= 
-    create_directory();
-    //int i =directory_test1(dir_name,output_file);
-   // if(i==0)
-     //   directory_test2(dir_name,output_file);
-    
-    return 0;
 }
