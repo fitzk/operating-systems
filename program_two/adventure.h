@@ -15,18 +15,22 @@
 #define END_ROOM =2
 
 struct name_option{
-    char name[50];
+    
+    char name[256];
     int chosen;
 };
 
 struct room{
     
-    char name[50];
-    const char* connections[6];
+    char name[256];
+    char** connections;
     const int type;    
     
 };
 
 int create_directory();
-int define_file_names(struct name_option **);
+int define_file_names(struct name_option* );
+int name_rooms(struct name_option* names, struct room* rooms);
+int initalize_connections(struct room* room, int num_connections);
+int set_connections(struct name_option* names, struct room* rooms);
 #endif

@@ -17,19 +17,17 @@
 * details Details
 **/
 int main(void){
-    
+        srand(time(NULL));
 /*     int file_descriptor;
     ssize_t nread;
     ssize_t; */
-          const char* dir_name;
+     const char* dir_name;
     const char* output_file="results.txt";
     gen_files();
 
-    ///dir_name= 
-    create_directory();
-    //int i =directory_test1(dir_name,output_file);
-   //  if(i==0)
-     //   directory_test2(dir_name,output_file);
+
+    //create_directory();
+
     
     return 0;
 }

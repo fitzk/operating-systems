@@ -20,50 +20,99 @@
 
 
 int gen_files(){
-    srand(time(NULL));
-    
-    // create null pointer to struct type name_option
-    struct name_option *names= NULL;
-    define_file_names(&names);
 
+    
+    // create10 name_option structs to hold naming schema
+     struct name_option names[10];
+     //create 7 room structs to hold room schema
+     struct room* rooms[7];    
+    // store potential file names in structs
+    define_file_names(&names);
+    name_rooms(&names, &rooms);
 }
-int define_file_names(struct name_option ** names){
-    int count=0;
+int define_file_names(struct name_option* names){
+
     // array of potential file names
     const char* ch_names[]={"a","b","c","d","e","f","g","h","i","j"};
-   
-    // allocating memory to create 10 name_option structs
-    *names= (struct name_option*)malloc(sizeof(*names)*100);
-    int k;
-    for(k=0; k < 10;k++){
-        printf("ch_names: %s\n",ch_names[k]);
-        if ( strncpy(names[k]->name,ch_names[k],20) )
-        {
-             printf("names[k]->name: %s\n",names[k]->name);
-        }
-      //  
-    //    names[k]->chosen=0;
-    }
-
-    int r = 8;
-
-/*     while(count < 7){
-        r = rand()%7;
- //       if()
-        
-        printf("names[0]->name: %s\n",names[0]->name);
     
+    // assigning names to structs 
+    int k;
+     for(k=0; k < 10;k++){
+        strncpy(names[k].name, ch_names[k], 56);
+         names[k].name[55]='\0';
+        // setting chosen 'boolean' to 0
+         names[k]->chosen=4;
+      printf("names[k]->chosen: %s\n",names[k]->chosen);
     }
- */
  return 0;
 }
+
+
+int name_rooms(struct name_option* names, struct room* rooms){
+    int r = 8;
+    int h;
+    for(h=0; h < 10; h++){
+   //         printf("names[h]->name: %s\n",names[h].name);
+   //          printf("names[h]->chosen: %s\n",names[h].chosen);
+    }
+    int m;
+    for(m=0; m < 7; m++){
+            int cont = 1;
+        while(cont == 1){
+                r = rand()%7;
+               
+               if( names[r].chosen != 1 ){
+           //         printf("r:  %d\n", r);
+                    strncpy(rooms[m].name, names[r].name, 55);
+                     //rooms[m].name[55]='\0';
+                      names[r].chosen=1;
+          //            printf("rooms[m]->name: %s\n",rooms[m].name);
+         //             printf("name[]->name: %s\n",rooms[m].name);
+                      cont=0;
+               }
+               
+        }
+    }
+}
+int initalize_connections(struct room* room, int num_connections){
+    
+    room->connections = (char**)malloc(num_connections*sizeof(char*));
+    int n;
+    for (n=0; n < num_connections; n++){
+        room->connections[n]=(char*)malloc(56*sizeof(char));    
+    }
+    
+}
+int set_connections(struct name_option* names,struct room* rooms ){
+    int m;
+        for(m=0; m < 7; m++){
+            int num_connections = rand()%7;
+       //     printf("Inside set_connections: %s\n",rooms[m].name);
+        //    initalize_connections(&rooms[m], num_connections);
+/*             int cont = 1;
+        while(cont == 1){
+                r = rand()%7;
+               if(names[r].chosen != 1){
+                    strncpy(rooms[m].name, names[r].name, 56);
+                     rooms[m].name[55]='\0';
+                     printf("rooms[m]->name: %s\n",rooms[m].name);
+                      names[r].chosen=1;
+                 cont=0;
+               } */
+        }
+    
+    
+}
+
+
+
 // Thread-safe usage of strerror_r().
 //http://www.ibm.com/developerworks/aix/library/au-errnovariable/
 void thread_safe( int err )
 {
-    char buff[256];
+    char buff[56];
     
-    if( strerror_r( err, buff, 256 ) == 0 ) {
+    if( strerror_r( err, buff, 56 ) == 0 ) {
         printf( "Error: %s\n", buff );
     }
 }
