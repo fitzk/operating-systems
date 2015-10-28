@@ -21,65 +21,87 @@
 
 int gen_files(){
 
-    
     // create10 name_option structs to hold naming schema
-     struct name_option names[10];
-     //create 7 room structs to hold room schema
-     struct room* rooms[7];    
+    struct name_option names[10];
+    // create 7 room structs to hold room schema
+    struct room* rooms[7];    
     // store potential file names in structs
     define_file_names(&names);
     name_rooms(&names, &rooms);
+    set_connections(&names,&rooms);
 }
+/**
+* define_file_names 
+*
+*  param: names 
+*  return: 0
+*
+*  details: sets name member in all name_option structs, and sets chosen flag to 0
+**/
 int define_file_names(struct name_option* names){
 
     // array of potential file names
-    const char* ch_names[]={"a","b","c","d","e","f","g","h","i","j"};
+    const char* ch_names[]={"aah\0","bah\0","cah\0","dah\0","ehh\0","fah\0","gah\0","hha\0","iah\0","jah\0"};
     
     // assigning names to structs 
     int k;
-     for(k=0; k < 10;k++){
-        strncpy(names[k].name, ch_names[k], 56);
-         names[k].name[55]='\0';
-        // setting chosen 'boolean' to 0
-         names[k]->chosen=4;
-      printf("names[k]->chosen: %s\n",names[k]->chosen);
+    for(k=0; k < 10;k++){
+        strcpy(names[k].name, ch_names[k]);
+         names[k].chosen=0;
     }
+    
  return 0;
 }
 
-
+/**
+*  name_rooms
+*
+*  param: names 
+*               ptr to name_option structs containing optional names and usage flag
+*  param: rooms 
+*               ptr to room structs 
+*  return: Return_Description
+*
+*  details: Details
+**/
 int name_rooms(struct name_option* names, struct room* rooms){
     int r = 8;
-    int h;
-    for(h=0; h < 10; h++){
-   //         printf("names[h]->name: %s\n",names[h].name);
-   //          printf("names[h]->chosen: %s\n",names[h].chosen);
-    }
     int m;
+    // loop over all files
     for(m=0; m < 7; m++){
-            int cont = 1;
+        int cont = 1;
+        // continue until correct name is found
         while(cont == 1){
-                r = rand()%7;
-               
-               if( names[r].chosen != 1 ){
-           //         printf("r:  %d\n", r);
-                    strncpy(rooms[m].name, names[r].name, 55);
-                     //rooms[m].name[55]='\0';
-                      names[r].chosen=1;
-          //            printf("rooms[m]->name: %s\n",rooms[m].name);
-         //             printf("name[]->name: %s\n",rooms[m].name);
-                      cont=0;
-               }
-               
-        }
+          
+          // random number between 0-9
+            r = rand()%10;
+            // checking if name has been chosen already
+           if( names[r].chosen == 0 ){
+                printf("names[r: %d].chosen=%d\n",r,names[r].chosen); 
+                // buffer for name (for clarity)
+                char* buff = names[r].name;
+                // checking buffer length
+                if(strlen(buff) >0){
+                    // copy the name into the room
+                    strcpy(rooms[m].name, buff); 
+                    // change conts to 0 (end loop)
+                    cont=0;
+                    // set chosen flag to 1 (has been chosen)
+                    names[r].chosen=1;
+                }
+            }
+         //printf("names[r: %d].chosen=%d\n",r,names[r].chosen); 
+       }
     }
 }
-int initalize_connections(struct room* room, int num_connections){
+
+int initalize_connections(struct room* single_room, int num_connections){
     
-    room->connections = (char**)malloc(num_connections*sizeof(char*));
+    single_room->connections = (char*)malloc(num_connections*sizeof(char*));
     int n;
+    
     for (n=0; n < num_connections; n++){
-        room->connections[n]=(char*)malloc(56*sizeof(char));    
+        single_room->connections[n]=(char*)malloc(56*sizeof(char));    
     }
     
 }
@@ -88,7 +110,7 @@ int set_connections(struct name_option* names,struct room* rooms ){
         for(m=0; m < 7; m++){
             int num_connections = rand()%7;
        //     printf("Inside set_connections: %s\n",rooms[m].name);
-        //    initalize_connections(&rooms[m], num_connections);
+            initalize_connections(&rooms[m], num_connections);
 /*             int cont = 1;
         while(cont == 1){
                 r = rand()%7;

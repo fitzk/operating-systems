@@ -24,7 +24,8 @@ struct room{
     
     char name[256];
     char** connections;
-    const int type;    
+    int type;
+    int num_connections;
     
 };
 
