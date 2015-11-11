@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include "room_tests.h"
+#include "adventure.h"
 
 //while (fgets(buffer, 100, fp)) {
 //    printf("%s", buffer);
@@ -20,3 +21,19 @@ int room_test1(){
     
     
 }
+/* void test_pair_rooms(){
+        room* first= make_room();
+    strncpy(first->name, "first",strlen("first"));
+
+   room* second = make_room();
+    strncpy(second->name, "sec",strlen("sec"));
+  
+ second->num_connections++;
+ second->connections[0]= first;  
+
+    int result= pair_rooms(first,second);
+    printf("first connection: %s\n", first->connections[0]->name);
+    printf("result: %d\n",result);
+    free_room(first);
+   free_room(second);
+} */
