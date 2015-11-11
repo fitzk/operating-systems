@@ -1,9 +1,12 @@
 /* smallsh.c */
-#include <sys/types.h>
-#include <unistd.h>
+#include<sys/types.h>
+#include<unistd.h>
 #include<stdio.h>
 #include<stdlib.h>
-#include <errno.h>
+#include<errno.h>
+
+#define EXIT_SUCCESS 0
+#define EXIT_FAILURE -1
 #define PATH_MAX 500
     // getcwd(char*buf,size_t size) 
     // function returns a null-terminated string containing an absolute pathname that is
@@ -33,7 +36,10 @@ int chdir_test(){
 }
 
 int open_test(){
-    fd = open(pathname,flags,mode);
+	char* pathname = "tofile";
+	int flags;
+	int mode;
+    int fd = open(pathname,flags,mode);
     if (fd == -1){        
         perror(pathname);
     }
@@ -44,7 +50,7 @@ int open_test(){
 }
 
 void fork_test(){
-       pid_t spawnpid = -5;
+    pid_t spawnpid = -5;
     int ten = 10;
     
     spawnpid = fork();
@@ -63,7 +69,7 @@ void fork_test(){
             printf("I am the parent! ten = %d\n", ten);
             break;
     }
-    printf("This will be executed by both of us!\n"); */
+    printf("This will be executed by both of us!\n");
 }
 
 void cd_smallsh(char* path){
