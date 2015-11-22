@@ -47,22 +47,6 @@ void status_smallsh(int stat){
     
 }
 
-/*
- * compares two strings
- * returns 0 if match, 1 if no match
- * */
-int compstrings( const char*s1, const char*s2)
-{
-
-    if(strlen(s1)== 0 || strlen(s2)== 0){
-    	return 1;
-    }
-    int result = strncmp(s1,s2,strlen(s1));
-    if(result != 0){
-    	return 1;
-    }
-    return 0;
-}
 
 
 /*
@@ -135,6 +119,7 @@ void set_redirect_background_flags(Args*args){
 			args->redirect_stdin = 1;
 		}
 		if(compstrings("&", args->input_arr[x])== 0){
+            printf("check if setting background_process in set_redirect_background_flags!\n");
 			args->background_process = 1;
 		}
 	}
@@ -210,7 +195,6 @@ void set_execv_args(Args*args){
 	}
 	args->execv_args[args->execv_args_length]=NULL;
 	args->execv_args_length++;
-	//printf("execv_args_length: %d\n", args->execv_args_length);
 }
 /*
  * helper function to print out execv args
@@ -239,8 +223,6 @@ void run_execv(Args*args, int process){
 }
 void termination_signal(int signo) {
 	printf("terminated by signal %d\n", signo);
-
-
 	kill(getpid(), SIGINT);
 }
 /*
@@ -254,6 +236,7 @@ pid_t create_new_process(Args *args){
 	sig.sa_handler = termination_signal;
 	sigfillset(&(sig.sa_mask));
 
+    sigaction(SIGINT, &sig, NULL);
 	spawnpid = fork();
 	switch(spawnpid){
 
@@ -267,14 +250,18 @@ pid_t create_new_process(Args *args){
 			break;
 		}
 		default:{
-			int returnStatus;
-			int options = 0;
+            if(args->background_process == 0){
+                int returnStatus;
+                int options = 0;
 
-			waitpid(-1,&returnStatus,options);
-			if(returnStatus == 1){
-				perror("child process");
-				exit(1);
-			}
+                waitpid(-1,&returnStatus,options);
+                if(returnStatus == 1){
+                    perror("child process");
+                    exit(1);
+                }
+            }else{
+                    printf("background pid is %d\n",spawnpid);
+                }
 			return spawnpid;
 			break;
 		}
@@ -313,15 +300,19 @@ int redirect_stdin(Args*args){
 
 	fflush(STDIN_FILENO);
 
-
+    int fd;
 	char*input_file = malloc(sizeof(char)*STR_MAX);
 	get_input_file(args,input_file);
-	int fd = open(input_file,O_RDONLY);
-	if(fd == -1) {
-		printf("smallsh: cannot open %s for input\n", input_file);
-		exit(1);
-	}
-
+    if(args->background_process == 1){
+        printf("args->background_process %d for %d", args->background_process, getpid());
+         fd = open("/dev/null", O_RDONLY);
+    }else{
+         fd = open(input_file,O_RDONLY);
+        if(fd == -1) {
+            printf("smallsh: cannot open %s for input\n", input_file);
+            exit(1);
+        }
+    }
 	int fd2 = dup2(fd, 0);
 	if(fd2 == -1){
 		perror("dup2");
@@ -344,7 +335,9 @@ void reset_stdin(int fd2){
  * */
 void external_command(Args*args, Process_Env * env){
 
-
+    if(args->background_process == 1){
+        args->redirect_stdin =1;
+    }
 	if(args->redirect_stdin == 1 && args->redirect_stdout == 1){
 		pid_t process = create_new_process(args);
 		if(process == 0){
@@ -450,7 +443,26 @@ void blunt_object(){
 		if (WIFSIGNALED(status)) {
 			printf("background pid %d has finished, terminated by signal %d\n", pid, WTERMSIG(status));
 		}
-	}
+	}else if(pid == -1){
+        perror("zombies");
+    }
+}
+
+/*
+ * compares two strings
+ * returns 0 if match, 1 if no match
+ * */
+int compstrings( const char*s1, const char*s2)
+{
+
+    if(strlen(s1)== 0 || strlen(s2)== 0){
+    	return 1;
+    }
+    int result = strncmp(s1,s2,strlen(s1));
+    if(result != 0){
+    	return 1;
+    }
+    return 0;
 }
 /*
  * main
@@ -511,17 +523,18 @@ main(int argc, char*argv[]){
 			command_handler(args,env);
 
 			exit_args = compstrings(quit,args->input_arr[0]);
+     
 		}
 		int m;
 		for(m=0; m < ARGS_MAX; m++){
 			free(args->input_arr[m]);
 			//free(args->execv_args[m]);
 		}
-
+   //    printf("loop\n");
 		free(args->input_arr);
 		//free(args->execv_args);
 		free(args);
-
+        blunt_object();
 	}while(exit_args != 0);
 
 
