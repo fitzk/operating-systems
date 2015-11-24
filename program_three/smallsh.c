@@ -1,4 +1,12 @@
-/* smallsh.c */
+/*
+ * Kayla Fitzsimmons
+ * (fitzsimk)
+ * 11/23/2015
+ * CS344
+ * Program 4
+ * smallsh.c
+ *
+ * */
 #include<sys/types.h>
 #include<sys/wait.h>
 
@@ -17,6 +25,8 @@
 typedef struct Args Args;
 typedef struct Process_Env Process_Env;
 
+// struct to hold user's commands
+// and args
 struct Args{
 
 	char input_str[2048];
@@ -28,10 +38,10 @@ struct Args{
 	int redirect_stdout;
 	int redirect_stdin;
 	int background_process;
-	char* prev_status;
 
 };
-
+// struct to hold environment information
+// for current process
 struct Process_Env{
 	int pid;
 	char path_str[2048];
@@ -39,25 +49,39 @@ struct Process_Env{
 	int length;
 };
 
+/*
+ * global to hold the previous
+ * foreground command status
+ *
+ * */
+char prev_status[2048];
 
-
-void status_smallsh(int stat){
+/*
+ * status internal command
+ * */
+void status_smallsh(){
  
-    printf("exit value %d\n", stat);
+	printf("%s", prev_status);
     
 }
-
-
+/*
+ * cd internal command
+ *
+ * */
+void cd_smallsh(Args *args){
+	if (args->length == 1) {
+		chdir(getenv("HOME"));
+	}
+	else {
+		if (chdir(args->input_arr[1]) == -1) {
+			printf("smallsh: cd: %s: No such file or directory\n", args->input_arr[1]);
+		}
+	}
+}
 
 /*
  * str_split
  *
- * parameters:
- * 	str - string to be split
- * 	array - char array for tokens to be stored in
- * 	len	- length variable to update token count in external variable
- * 	character - the character for the string to be split on
- * comments:
  * 	I wrote my own strtok functon because I was getting a couple of
  * 	memory leaks using the built in strtok.
  *
@@ -98,15 +122,16 @@ void str_split(char str[],char**array,int*len, const char character){
 			tk_count=0;
 			//update number of commands
 			arr_count++;
-
 		}
-
 	}
 
 	*len=arr_count;
 	free(token);
 }
-
+/*
+ * sets flags for user input, output redirection, and
+ * background processes
+ * */
 void set_redirect_background_flags(Args*args){
 
 	int x;
@@ -119,12 +144,14 @@ void set_redirect_background_flags(Args*args){
 			args->redirect_stdin = 1;
 		}
 		if(compstrings("&", args->input_arr[x])== 0){
-            printf("check if setting background_process in set_redirect_background_flags!\n");
-			args->background_process = 1;
+         	args->background_process = 1;
 		}
 	}
 }
-
+/*
+ * set's the current env path in env struct
+ *
+ * */
 void get_path(Process_Env* env){
 	sprintf(env->path_str, "%s",getenv("PATH"));
 	int length = strlen(env->path_str);
@@ -215,28 +242,91 @@ void print_execv_args(Args*args){
  * */
 void run_execv(Args*args, int process){
 
-	if(process == 0){
-		if(execv(args->command_path,args->execv_args)== -1){
-			perror("execv");
+		int result = execv(args->command_path,args->execv_args);
+		if(result == -1){
+			perror(args->input_arr[0]);
+			exit(1);
+		}
+
+}
+void catch_fg(int signo) {
+	int returnStatus;
+
+	if(WIFSIGNALED(&returnStatus) > 0 ){
+			printf("CATCH_FG: terminated by signal %d\n", WTERMSIG(returnStatus));
+			sprintf(prev_status,"CATCH_FG: terminated by signal %d\n", WTERMSIG(returnStatus));
+			//	kill(getpid(), SIGINT);
+			//	exit(1);
+		}
+
+}
+/*
+ * foreground process
+ * forks a new process and returns the pid
+ *
+ * */
+pid_t foreground_process(Args *args){
+	pid_t spawnpid = -5;
+
+
+	spawnpid = fork();
+	switch(spawnpid){
+
+		case -1:{
+			perror("fork failed");
+			exit(1);
+			break;
+		}
+		case 0:{
+			struct sigaction catch;
+			catch.sa_flags = 0;
+			catch.sa_handler = catch_fg;
+			sigfillset(&(catch.sa_mask));
+			sigaction(SIGINT, &catch, NULL);
+			return spawnpid;
+			break;
+		}
+		default:{
+			int returnStatus;
+			do{
+
+			int options = 0;
+
+			pid_t pid = waitpid(spawnpid,&returnStatus,0);
+			if(returnStatus == 1){
+				perror("child process");
+				exit(1);
+			}
+
+				if(WIFEXITED(returnStatus) > 0) {
+					sprintf(prev_status,"foreground process %d has finished, exit value %d\n", pid, WEXITSTATUS(returnStatus));
+
+				}
+				if(WIFSIGNALED(returnStatus) > 0){
+					printf("terminated by signal %d\n", pid, WTERMSIG(returnStatus));
+					sprintf(prev_status,"terminated by signal %d\n", pid, WTERMSIG(returnStatus));
+				}
+
+			}while(!WIFEXITED(returnStatus)&& !WIFSIGNALED(returnStatus));
+			return spawnpid;
+			break;
 		}
 	}
 }
-void termination_signal(int signo) {
-	printf("terminated by signal %d\n", signo);
-	kill(getpid(), SIGINT);
-}
 /*
- * spawns a new process and returns the pid
+ * background process
+ * forks a new process and returns the pid
  *
  * */
-pid_t create_new_process(Args *args){
+pid_t background_process(Args *args){
 	pid_t spawnpid = -5;
-	struct sigaction sig;
-	sig.sa_flags = 0;
-	sig.sa_handler = termination_signal;
-	sigfillset(&(sig.sa_mask));
+	struct sigaction signal;
+	signal.sa_handler = SIG_IGN;
+	signal.sa_flags = 0;
 
-    sigaction(SIGINT, &sig, NULL);
+	sigfillset(&(signal.sa_mask));
+	sigaction(SIGINT, &signal, NULL);
+
 	spawnpid = fork();
 	switch(spawnpid){
 
@@ -250,21 +340,11 @@ pid_t create_new_process(Args *args){
 			break;
 		}
 		default:{
-            if(args->background_process == 0){
-                int returnStatus;
-                int options = 0;
 
-                waitpid(-1,&returnStatus,options);
-                if(returnStatus == 1){
-                    perror("child process");
-                    exit(1);
-                }
-            }else{
-                    printf("background pid is %d\n",spawnpid);
-                }
-			return spawnpid;
-			break;
-		}
+            printf("background pid is %d\n",spawnpid);
+  			return spawnpid;
+  			break;
+        }
 	}
 }
 /*
@@ -292,27 +372,43 @@ void redirect_stdout(Args*args){
 		}
 }
 /*
- * redirects standard input for foreground and background processes
+ * redirects background stdin to keep terminal clear
+ *
+ * */
+int redirect_background_stdin(Args*args){
+	fflush(STDIN_FILENO);
+    int fd1 = open("/dev/null", O_RDONLY);
+    int std_in = dup2(fd1, 0);
+    return std_in;
+}
+/*
+ * redirects background stdout to keep terminal clear
+ *
+ * */
+int redirect_background_stdout(Args*args){
+    int fd1 = open("/dev/null", O_WRONLY);
+    int std_out = dup2(fd1, 1);
+    return std_out;
+}
+/*
+ * redirects standard input for foreground processes
  *
  * */
 
 int redirect_stdin(Args*args){
 
 	fflush(STDIN_FILENO);
-
+	int std_in;
     int fd;
 	char*input_file = malloc(sizeof(char)*STR_MAX);
 	get_input_file(args,input_file);
-    if(args->background_process == 1){
-        printf("args->background_process %d for %d", args->background_process, getpid());
-         fd = open("/dev/null", O_RDONLY);
-    }else{
-         fd = open(input_file,O_RDONLY);
+
+        fd = open(input_file,O_RDONLY);
         if(fd == -1) {
             printf("smallsh: cannot open %s for input\n", input_file);
             exit(1);
         }
-    }
+
 	int fd2 = dup2(fd, 0);
 	if(fd2 == -1){
 		perror("dup2");
@@ -321,51 +417,59 @@ int redirect_stdin(Args*args){
 	free(input_file);
 	return fd2;
 }
-/*
- * resets stdin
- * */
-void reset_stdin(int fd2){
-	dup2(fd2,0);
-	close(fd2);
-
-}
 
 /*
  * calls input and output redirection function calls
+ * for all possible input/output redirection combos
+ *
  * */
-void external_command(Args*args, Process_Env * env){
+void foreground_command(Args*args, Process_Env * env){
 
-    if(args->background_process == 1){
-        args->redirect_stdin =1;
-    }
+
 	if(args->redirect_stdin == 1 && args->redirect_stdout == 1){
-		pid_t process = create_new_process(args);
+		pid_t process = foreground_process(args);
 		if(process == 0){
 			redirect_stdin(args);
 			redirect_stdout(args);
 			run_execv(args,process);
 		}
 	}else if(args->redirect_stdin == 1 && args->redirect_stdout == 0){
-		pid_t process = create_new_process(args);
+		pid_t process = foreground_process(args);
 		if(process == 0){
 			int fd = redirect_stdin(args);
 			run_execv(args,process);
-			reset_stdin(fd);
 		}
 	}else if(args->redirect_stdout == 1 && args->redirect_stdin == 0){
 
-		pid_t process = create_new_process(args);
+		pid_t process = foreground_process(args);
 		if(process == 0){
 			redirect_stdout(args);
 			run_execv(args,process);
 		}
 	}else if(args->redirect_stdin == 0 && args->redirect_stdout== 0){
-		pid_t process = create_new_process(args);
-		run_execv(args,process);
+		pid_t process = foreground_process(args);
+		if(process == 0){
+			run_execv(args,process);
+		}
 	}
 
 }
+/*
+ * calls input and output redirection function calls
+ * */
+void background_command(Args*args, Process_Env * env){
 
+
+	pid_t process =  background_process(args);
+
+	if(process == 0){
+		redirect_background_stdin(args);
+		redirect_background_stdout(args);
+		run_execv(args,process);
+	}
+
+
+}
 
 
 /*
@@ -394,7 +498,7 @@ void command_handler(Args*args, Process_Env* env){
 	char expr;
 	if(compstrings("cd",args->input_arr[0])== 0){
 		expr = 'c';
-	}else if(compstrings("stats",args->input_arr[0])== 0){
+	}else if(compstrings("status",args->input_arr[0])== 0){
 		expr = 's';
 	}else if(compstrings("exit",args->input_arr[0])== 0){
 		expr = 'e';
@@ -404,22 +508,25 @@ void command_handler(Args*args, Process_Env* env){
 
 	switch(expr){
 		case 'c':{
-			printf("cd!\n");
+			cd_smallsh(args);
 			break;
 		}
 		case 's':{
-			printf("stats!\n");
+			status_smallsh();
 			break;
 		}
 		case 'e':{
-			printf("exit!\n");
 			break;
 		}case '#':{
 			break;
 		}default:{
 			//printf("external!\n");
 
-			external_command(args, env);
+			if(args->background_process == 0){
+				foreground_command(args, env);
+			}else if(args->background_process == 1){
+				background_command(args,env);
+			}
 
 			break;
 		}
@@ -428,7 +535,7 @@ void command_handler(Args*args, Process_Env* env){
 }
 
 /*
- *
+ * kills any zombie children
  * */
 void blunt_object(){
 	pid_t pid;
@@ -438,14 +545,14 @@ void blunt_object(){
 
 		if (WIFEXITED(status)) {
 			printf("background pid %d has finished, exit value %d\n", pid, WEXITSTATUS(status));
+			//exit(0);
 		}
 
 		if (WIFSIGNALED(status)) {
 			printf("background pid %d has finished, terminated by signal %d\n", pid, WTERMSIG(status));
+			//exit(1);
 		}
-	}else if(pid == -1){
-        perror("zombies");
-    }
+	}
 }
 
 /*
@@ -468,12 +575,12 @@ int compstrings( const char*s1, const char*s2)
  * main
  *
  * */
-main(int argc, char*argv[]){
+int main(int argc, char*argv[]){
 
 	int exit_args=-1;
-	printf("smallsh\n");
 	const char *quit = "exit\0";
 
+	// set path information struct
 	Process_Env* env =(Process_Env*) malloc(sizeof(Process_Env));
 	env->pid = getpid();
 	env->path_arr =(char**)malloc(sizeof(char*)*PATH_MAX);
@@ -485,9 +592,19 @@ main(int argc, char*argv[]){
 	}
 	str_split(env->path_str,env->path_arr,&env->length,':');
 
+	// ignore ctrl-c in main process
+	struct sigaction ignore;
+	ignore.sa_handler = SIG_IGN;
+	ignore.sa_flags = 0;
+	sigfillset(&(ignore.sa_mask));
+
+
 
 	do{
+		sigaction(SIGINT, &ignore, NULL);
+		blunt_object();
 		fflush(STDIN_FILENO);
+
 
 		Args* args = (Args*)malloc(sizeof(Args));
 		args->input_arr =(char**) malloc(sizeof(char*)*ARGS_MAX);
@@ -495,7 +612,6 @@ main(int argc, char*argv[]){
 		int y;
 		for(y=0; y < ARGS_MAX; y++){
 			args->input_arr[y]=(char*)malloc(sizeof(char)*STR_MAX);
-		//	args->execv_args[y]=(char*)malloc(sizeof(char*));
 		}
 		args->redirect_stdin=0;
 		args->redirect_stdout=0;
@@ -504,7 +620,7 @@ main(int argc, char*argv[]){
 		printf(":");
 		fgets(args->input_str,2048,stdin);
 		int length = strlen(args->input_str);
-		//printf("length: %d\n", length);
+
 		if(length > 1 ){
 			str_split(args->input_str,args->input_arr,&args->length, ' ');
 
@@ -512,6 +628,7 @@ main(int argc, char*argv[]){
 			// check if redirection or background process in command
 			// set flags in struct
 			set_redirect_background_flags(args);
+
 			// get's the correct path to the current command
 			// and stores it to the args struct
 			get_command_path(args,env);
@@ -519,30 +636,29 @@ main(int argc, char*argv[]){
 			args->execv_args_length=0;
 			set_execv_args(args);
 
-
+			// directs commands
 			command_handler(args,env);
 
+			// exit if command is exit
 			exit_args = compstrings(quit,args->input_arr[0]);
-     
 		}
+
+		// clean up
 		int m;
 		for(m=0; m < ARGS_MAX; m++){
 			free(args->input_arr[m]);
-			//free(args->execv_args[m]);
 		}
-   //    printf("loop\n");
+
 		free(args->input_arr);
-		//free(args->execv_args);
 		free(args);
         blunt_object();
 	}while(exit_args != 0);
 
-
+	// clean up
+	blunt_object();
 	for(x=0; x < PATH_MAX; x++){
 		free(env->path_arr[x]);
 	}
-
-
 	free(env->path_arr);
 	free(env);
 	return 0;

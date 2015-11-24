@@ -61,7 +61,8 @@ Command Execution
 
 2) Background commands should have their standard input redirected from /dev/null 
     - if the user did not specify some other file to take standard input from.  
-    - What happens to background commands that read from standard input if you forget this?
+    - What happens to background commands that read from standard input if you 
+    forget this?
 
 3) Your shell should use the PATH variable to look for commands,
 	and it should allow shell scripts to be executed (see below for the 
@@ -189,7 +190,10 @@ background pid 4941 is done: terminated by signal 15
 /nfs/stak/faculty/b/brewsteb/CS344
 : exit
 $
-In addition to your shell needing to replicate the above example in functionality, this assignment is provided with the actual grading test scriptView in a new window that will be used to assign your program a grade. To run it, place it in the same directory as your compiled shell, and run this command from a bash prompt:
+In addition to your shell needing to replicate the above example in functionality, 
+this assignment is provided with the actual grading test scriptView in a new window 
+that will be used to assign your program a grade. To run it, place it in the same d
+irectory as your compiled shell, and run this command from a bash prompt:
 
 $ p3testscript 2>&1
 or

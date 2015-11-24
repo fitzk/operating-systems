@@ -1,0 +1,25 @@
+insgesamt 90
+-rwxrwxrwx. 1 vagrant vagrant  9768 24. Nov 01:39 assignment.txt
+-rwxrwxrwx. 1 vagrant vagrant    37 13. Nov 20:25 change_lang
+-rwxrwxrwx. 1 vagrant vagrant     0 21. Nov 00:14 child.txt
+drwxrwxrwx. 1 vagrant vagrant     0 22. Nov 21:58 Default
+-rwxrwxrwx. 1 vagrant vagrant  8186 21. Nov 01:26 file2.txt
+-rwxrwxrwx. 1 vagrant vagrant     1 21. Nov 01:23 file.txt
+-rwxrwxrwx. 1 vagrant vagrant   216 24. Nov 01:49 junk
+-rwxrwxrwx. 1 vagrant vagrant   216 24. Nov 01:50 junk2
+-rwxrwxrwx. 1 vagrant vagrant  3053 24. Nov 01:49 mytestresults
+-rwxrwxrwx. 1 vagrant vagrant   157 22. Nov 21:41 new_file
+-rwxrwxrwx. 1 vagrant vagrant   191 23. Nov 19:02 output.txt
+-rwxrwxrwx. 1 vagrant vagrant  1731 24. Nov 01:39 p3testscript
+-rwxrwxrwx. 1 vagrant vagrant     0 21. Nov 00:20 parent.txt
+-rwxrwxrwx. 1 vagrant vagrant   226 24. Nov 01:57 rar
+-rwxrwxrwx. 1 vagrant vagrant     0 24. Nov 01:57 rar2
+-rwxrwxrwx. 1 vagrant vagrant   107 17. Nov 01:39 redir.txt
+-rwxrwxrwx. 1 vagrant vagrant  8382 22. Nov 21:41 small
+-rwxrwxrwx. 1 vagrant vagrant 15960 22. Nov 21:41 smallish
+-rwxrwxrwx. 1 vagrant vagrant 19266 24. Nov 01:57 smallsh
+-rwxrwxrwx. 1 vagrant vagrant 13827 24. Nov 01:57 smallsh.c
+-rwxrwxrwx. 1 vagrant vagrant   202 24. Nov 01:30 test2.file
+-rwxrwxrwx. 1 vagrant vagrant     2 21. Nov 01:04 test.txt
+-rwxrwxrwx. 1 vagrant vagrant     8 22. Nov 21:41 this_file.txt
+-rwxrwxrwx. 1 vagrant vagrant  3100 11. Nov 21:57 Vagrantfile

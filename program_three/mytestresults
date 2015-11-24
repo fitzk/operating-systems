@@ -1,0 +1,169 @@
+Pre-script Info
+PID: 2753
+
+:BEGINNING TEST SCRIPT - MAX 150 POINTS (10 more points for comments)
+:
+:
+:--------------------
+:ls (10 points for returning dir contents)
+:assignment.txt
+change_lang
+child.txt
+Default
+file2.txt
+file.txt
+junk
+mytestresults
+new_file
+output.txt
+p3testscript
+parent.txt
+redir.txt
+small
+smallish
+smallsh
+smallsh.c
+test2.file
+test.txt
+this_file.txt
+Vagrantfile
+:
+:
+:--------------------
+:ls out junk
+::
+:
+:--------------------
+:cat junk (20 points for correctly returning contents of junk)
+:assignment.txt
+change_lang
+child.txt
+Default
+file2.txt
+file.txt
+junk
+mytestresults
+new_file
+output.txt
+p3testscript
+parent.txt
+redir.txt
+small
+smallish
+smallsh
+smallsh.c
+test2.file
+test.txt
+this_file.txt
+Vagrantfile
+:
+:
+:--------------------
+:wc in junk (20 points for returning correct numbers from wc)
+:: 21  21 216
+:
+:
+:--------------------
+:test -f badfile (10 points for returning error value of 1)
+:::foreground process 2781 has finished, exit value 1
+
+:
+:--------------------
+:wc in badfile (10 points for returning text error)
+::smallsh: cannot open badfile for input
+:
+:
+:--------------------
+:badfile (10 points for returning text error)
+:execv: No such file or directory
+:LINE 244) RESULT OF EXEC: -1
+
+:
+:--------------------
+:sleep 100 background (10 points for returning process ID of sleeper)
+::background pid is 2796
+:
+:
+:--------------------
+:pkill -signal SIGTERM sleep (10 points for pid of killed process, 10 points for signal)
+:(Ignore message about Operation Not Permitted)
+::background pid 2796 has finished, terminated by signal 15
+
+:
+:--------------------
+:sleep 1 background (10 pts for pid of bg ps when done, 10 for exit value)
+::background pid is 2807
+::background pid 2807 has finished, exit value 0
+
+:
+:--------------------
+:pwd
+:/vagrant
+:
+:
+:--------------------
+:cd 
+::
+:
+:--------------------
+:pwd (10 points for being in the HOME dir)
+:/home/vagrant
+:
+:
+:--------------------
+:mkdir testdir2753
+::
+:
+:--------------------
+:cd testdir2753
+::
+:
+:--------------------
+:pwd (10 points for being in the newly created dir)
+:/home/vagrant/testdir2753
+:::
+:
+:--------------------
+:sleep 100 background (10 points for returning process ID of sleeper)
+::background pid is 2841
+
+:
+:--------------------
+:pkill -signal SIGTERM sleep (10 points for pid of killed process, 10 points for signal)
+:(Ignore message about Operation Not Permitted)
+::background pid 2841 has finished, terminated by signal 15
+
+:
+:--------------------
+:sleep 1 background (10 pts for pid of bg ps when done, 10 for exit value)
+::background pid is 2852
+::background pid 2852 has finished, exit value 0
+
+:
+:--------------------
+:pwd
+:/vagrant
+:
+:
+:--------------------
+:cd 
+::
+:
+:--------------------
+:pwd (10 points for being in the HOME dir)
+:/home/vagrant
+:
+:
+:--------------------
+:mkdir testdir2753
+:/bin/mkdir: kann Verzeichnis „testdir2753“ nicht anlegen: Die Datei existiert bereits
+:
+:
+:--------------------
+:cd testdir2753
+::
+:
+:--------------------
+:pwd (10 points for being in the newly created dir)
+:/home/vagrant/testdir2753
+::
